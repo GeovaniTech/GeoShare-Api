@@ -3,7 +3,7 @@ import os
 
 from flask import jsonify, request, Blueprint
 
-from service import FileDao, ClientFilesDao, ClientDao
+from service import FileDao, ClientFilesDao, ClientDao, RoomDao
 from storage import AzureStorage
 from utils import FileUtil, ShortUrlUtil
 
@@ -85,6 +85,7 @@ def files_delete():
 
         if success_delete_azure:
             ClientFilesDao.delete_file_from_client(client_id, file_url)
+            RoomDao.delete_file_from_rooms(file_url)
             FileDao.delete_file(file_url)
         else :
             return jsonify(

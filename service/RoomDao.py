@@ -104,3 +104,17 @@ def find_room_files(room_id):
 
     return files
 
+
+def delete_file_from_rooms(file_url):
+    conn = get_db_connection()
+
+    sql = """
+        DELETE FROM room_files WHERE file_id = (
+            SELECT id FROM file WHERE storage_url = %s
+        )
+    """
+
+    cursor = conn.cursor()
+    cursor.execute(sql, (file_url,))
+    conn.commit()
+    conn.close()
