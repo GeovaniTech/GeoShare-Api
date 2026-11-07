@@ -56,9 +56,10 @@ def files_upload():
             )
 
         file_id = str(uuid.uuid4())
-        filename = f"{file_id}.{extension}"
+        blob_name = f"{file_id}.{extension}"
+        filename = file.filename[:255]
 
-        long_url = AzureStorage.upload_file_to_azure(filename, file)
+        long_url = AzureStorage.upload_file_to_azure(blob_name, file)
         url = ShortUrlUtil.shorten_url(long_url)
 
         FileDao.insert_file(file_id, filename, file_size, extension, url)
