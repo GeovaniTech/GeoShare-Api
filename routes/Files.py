@@ -66,6 +66,7 @@ def files_upload():
         ClientFilesDao.insert_file_for_client(client_id, file_id)
 
         return jsonify(
+            fileId = file_id,
             fileUrl = f"{url}"
         )
     except Exception as ex:
