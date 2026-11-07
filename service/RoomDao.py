@@ -2,6 +2,8 @@ import uuid
 from datetime import datetime
 from random import randint
 
+from psycopg2.extras import RealDictCursor
+
 from utils.DatabaseUtil import get_db_connection
 
 
@@ -65,4 +67,40 @@ def add_files_to_room(room_id, files):
 
     conn.commit()
     conn.close()
+
+
+def find_room(room_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    sql = """
+        SELECT id, created_at FROM room WHERE id = %s
+    """
+
+    cursor.execute(sql, (room_id,))
+    room = cursor.fetchone()
+
+    conn.close()
+
+    return room
+
+
+def find_room_files(room_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    sql = """
+        SELECT f.id, f.filename, f.extension, f.size, f.storage_url, f.created_at
+        FROM room_files rf
+        INNER JOIN file f ON f.id = rf.file_id
+        WHERE rf.room_id = %s
+        ORDER BY f.created_at
+    """
+
+    cursor.execute(sql, (room_id,))
+    files = cursor.fetchall()
+
+    conn.close()
+
+    return files
 
