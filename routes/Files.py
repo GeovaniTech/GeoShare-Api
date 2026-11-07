@@ -3,7 +3,7 @@ import os
 
 from flask import jsonify, request, Blueprint
 
-from service import FileDao, ClientFilesDao, ClientDao
+from service import FileDao, ClientFilesDao, ClientDao, RoomDao
 from storage import AzureStorage
 from utils import FileUtil, ShortUrlUtil
 
@@ -56,15 +56,17 @@ def files_upload():
             )
 
         file_id = str(uuid.uuid4())
-        filename = f"{file_id}.{extension}"
+        blob_name = f"{file_id}.{extension}"
+        filename = file.filename[:255]
 
-        long_url = AzureStorage.upload_file_to_azure(filename, file)
+        long_url = AzureStorage.upload_file_to_azure(blob_name, file)
         url = ShortUrlUtil.shorten_url(long_url)
 
         FileDao.insert_file(file_id, filename, file_size, extension, url)
         ClientFilesDao.insert_file_for_client(client_id, file_id)
 
         return jsonify(
+            fileId = file_id,
             fileUrl = f"{url}"
         )
     except Exception as ex:
@@ -83,6 +85,7 @@ def files_delete():
 
         if success_delete_azure:
             ClientFilesDao.delete_file_from_client(client_id, file_url)
+            RoomDao.delete_file_from_rooms(file_url)
             FileDao.delete_file(file_url)
         else :
             return jsonify(

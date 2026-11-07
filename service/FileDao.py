@@ -19,19 +19,19 @@ def insert_file(file_id, filename, size, extension, storage_url):
     conn.close()
 
 
-def get_filename(file_url):
+def get_blob_name(file_url):
     conn = get_db_connection()
 
-    sql = f"""
-        SELECT filename FROM file WHERE storage_url = '{file_url}'
+    sql = """
+        SELECT id, extension FROM file WHERE storage_url = %s
     """
 
     cursor = conn.cursor()
-    cursor.execute(sql)
-    filename = cursor.fetchone()
+    cursor.execute(sql, (file_url,))
+    file_id, extension = cursor.fetchone()
     conn.close()
 
-    return filename[0]
+    return f"{file_id}.{extension}"
 
 
 def delete_file(file_url):
