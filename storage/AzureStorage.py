@@ -34,9 +34,9 @@ def delete_file_from_azure(file_url):
         container = str(os.getenv("AZURE_STORAGE_CONTAINER"))
         blob_service_client = get_blob_service_client()
 
-        filename = FileDao.get_filename(file_url)
+        blob_name = FileDao.get_blob_name(file_url)
 
-        blob_client = blob_service_client.get_blob_client(container=container, blob=filename)
+        blob_client = blob_service_client.get_blob_client(container=container, blob=blob_name)
         blob_client.delete_blob()
 
         return True
